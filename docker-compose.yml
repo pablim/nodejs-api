@@ -1,0 +1,19 @@
+version: "3.1"
+services:
+  postgres:
+    image: postgres:14
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./config/dbCreate.sql:/docker-entrypoint-initdb.d/dbCreate.sql
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: coodesh_challenge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      PGDATA: /var/lib/postgresql/data
+
+volumes:
+  postgres-data:  
