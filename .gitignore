@@ -1,4 +1,5 @@
-
+.env
+.env.prod
 .vscode/
 teste-backend-remoto/
 # These are some examples of commonly ignored file patterns.
