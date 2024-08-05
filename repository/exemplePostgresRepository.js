@@ -1,5 +1,5 @@
-const sqls = require('./sqls')
-const {postgresConnection: db} = require('../db');
+import sqls from './sqls.js'
+import {postgresConnection as db} from '../db/index.js'
 
 const feriadoRepository = {
     getFeriadoCidade: async (codigoIBGE, data) => {
@@ -45,4 +45,4 @@ const feriadoRepository = {
     }
 }
 
-module.exports = feriadoRepository
+export default feriadoRepository

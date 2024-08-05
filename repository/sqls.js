@@ -30,4 +30,4 @@ const querys = {
     }
 }
 
-module.exports = querys
+export default querys

@@ -1,4 +1,5 @@
-const { MongoClient } = require("mongodb")
+import { MongoClient } from "mongodb"
+import 'dotenv/config'
 
 const user = process.env.MONGO_DBUSER
 const password = process.env.MONGO_DBPASSWORD
@@ -11,4 +12,4 @@ const uri = `mongodb://${host}:${port}/`;
 
 const client = new MongoClient(uri);
 
-module.exports = {loyaltyConnection: client.db(database)}
+export const mongoConnection = client.db(database)

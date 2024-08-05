@@ -16,9 +16,9 @@
 
 // [START setup]
 // [START imports]
-const { GoogleAuth } = require('google-auth-library');
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
+import { GoogleAuth } from 'google-auth-library'
+import jwt from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 // [END imports]
 
 /**
@@ -1265,4 +1265,4 @@ class GoogleLoyalty {
 	// [END batch]
 }
 
-module.exports = { GoogleLoyalty };
+export { GoogleLoyalty };

@@ -1,4 +1,6 @@
-const { Pool } = require('pg')
+import pg from 'pg'
+
+const { Pool } = pg
 
 const bdPoll = new Pool({
 	user: process.env.POSTGRES_DBUSER,
@@ -69,11 +71,11 @@ const prepareStatement = (sqlObject, values) => {
 	return preparedStatement;
 }
 
-const coodeshConnection = {
+const postgresConnection = {
 	query, 
 	getClient,
 	prepareStatement,
 	bdPoll
 }
 
-module.exports = { coodeshConnection }
+export { postgresConnection }

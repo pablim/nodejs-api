@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken'
 
 const withJWT = (req, res, next) => {
 	if (process.env.WITH_JWT == 'true') {
@@ -24,4 +24,4 @@ function verifyJWT(req, res, next){
     });
 }
 
-module.exports = { verifyJWT, withJWT };
+export { verifyJWT, withJWT };

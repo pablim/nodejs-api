@@ -1,4 +1,4 @@
-const { mongoConnection: db } = require('../db');
+import { mongoConnection as db } from '../db/index.js'
 
 const loyaltyRepository = {
     getUser: async (obj) => {
@@ -24,4 +24,4 @@ const loyaltyRepository = {
     }
 }
 
-module.exports = loyaltyRepository
+export default loyaltyRepository

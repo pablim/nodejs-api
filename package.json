@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
     "body-parser": "^1.19.0",
     "config": "^3.3.1",
@@ -12,6 +13,7 @@
     "express-fileupload": "^1.4.0",
     "google-auth-library": ">=5.9.2",
     "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^2.0.9",
     "mongodb": "^6.1.0",
     "nodemon": "^2.0.4",
     "nunjucks": "^3.2.2",
@@ -23,7 +25,8 @@
   },
   "scripts": {
     "start.bk": "sudo mongod & nodemon index.js",
-    "start": "concurrently --names 'DATABASE,SERVER' --prefix-colors 'yellow,blue' --kill-others 'sudo mongod' 'nodemon index.js'",
+    "start.bd.bk": "concurrently --names 'DATABASE,SERVER' --prefix-colors 'yellow,blue' --kill-others 'sudo mongod' 'nodemon index.js'",
+    "start": "nodemon index.js",
     "testenunjucks": "node appnunjucks.js",
     "prod": "NODE_ENV=production nodemon index.js",
     "test": "DBUSER=postgres DBHOST=localhost DATABASE=coodesh_challenge DBPASSWORD=123 DBPORT=5432 jest --detectOpenHandles "

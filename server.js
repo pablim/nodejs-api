@@ -1,28 +1,27 @@
-const express = require('express')
-const fileUpload = require('express-fileupload')
-const bodyParser = require('body-parser')
-const path = require("path");
-const nunjucks = require('nunjucks')
-const cors = require('cors')
-const swaggerJsdoc = require("swagger-jsdoc")
-const swaggerUi = require("swagger-ui-express")
-const options = require('./swaggerOptions')
+import express from 'express'
+import fileUpload from 'express-fileupload'
+import bodyParser from 'body-parser'
+import path from "path"
+import nunjucks from 'nunjucks'
+import cors from 'cors'
+import swaggerJsdoc from "swagger-jsdoc"
+import swaggerUi from "swagger-ui-express"
+import options from './swaggerOptions.js'
+import dotenv from 'dotenv';
 
-require('dotenv').config({  
-  path: process.env.NODE_ENV === "test" ? 
-      ".env.testing" : 
-      process.env.NODE_ENV === "production" ? 
-          ".env.production" : 
-          ".env"
-})
-
-const specs = swaggerJsdoc(options);
+dotenv.config({ 
+  path: process.env.NODE_ENV === "test" ? ".env.testing" : 
+    process.env.NODE_ENV === "production" ? ".env.production" : ".env"
+});
 
 /**
  * Import routes
  */
-const auth = require('./routes/auth')
-const exempleRoute = require('./routes/exempleRoute')
+import auth from './routes/auth.js'
+import exempleRoute from './routes/exempleRoute.js'
+import mercadopagoRoute from './routes/mercadopago.js'
+
+const specs = swaggerJsdoc(options);
 
 const app = express()
 
@@ -62,10 +61,11 @@ app.get('/exemplo_pug', function (req, res) {
 
 app.use('/api', auth)
 app.use('/api/exemple-route', exempleRoute)
+app.use('/api/mercadopago', mercadopagoRoute)
 
 // default response:
 app.use((req, res) => {
     res.status(404)
 })
 
-module.exports = app
+export default app

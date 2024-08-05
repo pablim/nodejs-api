@@ -1,7 +1,7 @@
-const express = require('express')
-const jwt = require('jsonwebtoken');
+import express from 'express'
+import jwt from 'jsonwebtoken'
 
-const authRepository = require('../repository/AuthRepository');
+import authRepository from '../repository/AuthRepository.js'
 
 const auth = express.Router()
 
@@ -43,4 +43,4 @@ auth.post('/logout', function(req, res) {
     res.json({ auth: false, token: null });
 })
 
-module.exports = auth
+export default auth

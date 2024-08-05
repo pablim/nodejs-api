@@ -1,6 +1,6 @@
-const app = require('./server')
-const fs = require("fs");
-const https = require("https");
+import app from "./server.js"
+import fs from "fs"
+import https from "https"
 
 app.set('port', process.env.PORT || 5000);
 const port = app.get('port');

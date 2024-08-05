@@ -104,12 +104,12 @@
  *                 msgs: ["error in file process"]
  *                 status: 'error'
  */
-const express = require('express')
-const path = require("path");
-const { withJWT } = require('../utils/verifyJwt')
-const { GoogleLoyalty } = require('../utils/GoogleLoyalty')
+import express from 'express'
+import path from "path"
+import { withJWT } from '../utils/verifyJwt.js'
+import { GoogleLoyalty } from '../utils/GoogleLoyalty.js'
 
-const exemplePostgresRepository = require('../repository/exemplePostgresRepository');
+import exemplePostgresRepository from '../repository/exemplePostgresRepository.js'
 
 const issuerId = process.env.ISSUERID
 
@@ -343,4 +343,4 @@ exempleRoute.delete('/feriados/:codigoIBGE/:data', (req, res) => {
         
 })
 
-module.exports = exempleRoute
+export default exempleRoute

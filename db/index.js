@@ -1,8 +1,8 @@
-const { postgresOtherConnection } = require('./postgresOtherConnection')
-const { postgresConnection } = require('./postgresConnection')
-const { mongoConnection } = require('./mongoConnection')
+import { postgresOtherConnection } from './postgresOtherConnection.js'
+import { postgresConnection } from './postgresConnection.js'
+import { mongoConnection } from './mongoConnection.js'
 
-module.exports = {
+export {
 	postgresOtherConnection,
 	postgresConnection,
 	mongoConnection
