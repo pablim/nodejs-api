@@ -26,7 +26,11 @@ dotenv.config({
 		process.env.NODE_ENV === "production" ? ".env.production" : ".env"
 });
 
-const typeDefs = readFileSync("./schema.graphql", "utf8")
+const typeDefs = //	readFileSync("./schema.graphql", "utf8")
+readFileSync(
+    new URL("./schema.graphql", import.meta.url),
+    "utf8"
+);
 
 // routes imports
 import auth from './routes/auth.js'
