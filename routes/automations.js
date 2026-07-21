@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { point } from "@pablovf/point-automation/src/point.js";
+import { point } from "@pablovaz/point-automation/src/point.js";
 
 const automationRouter = Router()
 
