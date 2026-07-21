@@ -1,6 +1,10 @@
 import http from 'k6/http';
 import { check, group, sleep, fail } from 'k6';
 
+//https://grafana.com/docs/k6/latest/testing-guides/api-load-testing/
+//https://k6.io/docs/examples/
+//https://test-api.k6.io/
+
 export let options = {
   vus: 1,
   iterations: 1,

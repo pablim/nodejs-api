@@ -1,0 +1,219 @@
+{
+	"openapi": "3.0.3",
+	"info": {
+		"version": "1.0.0",
+		"title": "Swagger CRUD",
+		"description": "This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach! You can now help us improve the API whether it's by making changes to the definition itself or to the code. That way, with time, we can improve the API in general, and expose some of the new features in OAS3. If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_Some useful links: - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore) - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)",
+		"contact": { "email": "vazsk8@gmail.com" },
+		"termsOfService": "http://swagger.io/terms/",
+		"license": {
+			"name": "Apache 2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+		}
+	},
+	"externalDocs":{
+		"description": "Find out more about Swagger",
+		"url": "http://swagger.io"
+	},
+	"host": "localhost:3000",
+	"basePath": "/api",
+	"tags": [
+		{
+			"name": "Users",
+			"description": "User actions",
+			"externalDocs":{
+      			"description": "Find out more",
+      			"url": "http://swagger.io}"
+			}
+		},
+		{
+			"name": "Auth",
+			"description": "Authorization"
+		}
+	],
+	"schemes": ["https"],
+	"consumes": ["application/json"],
+	"produces": ["application/json"],
+	"components": {
+		"schemas": {
+			"User": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "User id",
+						"example": "5c0728badc70ea3dec00d8e6"
+					},
+					"name": {
+						"type": "string",
+						"description": "User name",
+						"example": "Fulano"
+					},
+					"email": {
+						"type": "string",
+						"description": "User email",
+						"example": "fulano@gmail.com"
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"properties" : {
+					"type":{ "type": "string" },
+					"title":{ "type": "string" },
+					"status":{ "type": "integer"},
+					"detail":{ "type": "string" },
+					"instance":{ "type": "string" } 
+				}
+			}
+		}
+	},
+	"paths": {
+		"/api/user": {
+			"post": {
+				"tags": ["Users"],
+				"description": "Create user",
+				"produces": ["application/json"],
+				"requestBody":{
+					"description": "Create a user",
+					"content":{
+						"application/json":{
+							"schema":{
+								"$ref": "#/components/schemas/User"}
+						}
+					}
+				},
+				"responses": {
+					"201": { "description": "Success" },
+					"400": {
+						"description": "Business Exception",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["Users"],
+				"description": "Update user",
+				"produces": ["application/json"],
+				"requestBody":{
+					"description": "Update an existent user",
+					"content":{
+						"application/json":{
+							"schema":{
+								"$ref": "#/components/schemas/User"}
+						}
+					}
+				},
+				"responses": {
+					"200": { "description": "Success" },
+					"400": {
+						"description": "Business Exception",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"tags": ["Users"],
+				"summary": "Finds Pets by status",
+				"description": "List users",
+				"operationId": "findPetsByStatus",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "Collection ID",
+						"in": "query",
+						"required": false,
+						"explode": true,
+						"example": "1",
+						"schema": {
+							"type": "string",
+							"defaultValue": "",
+							"enum": [ "available", "pending", "sold" ]
+						}
+					},
+					{
+						"name": "name",
+						"in": "query",
+						"description": "User name",
+						"example": "Fulano",
+						"schema": {
+							"type": "string",
+							"defaultValue": ""
+						}
+					},
+					{
+						"name": "password",
+						"in": "query",
+						"description": "User password hash",
+						"example": "jhfad873458jkafjk",
+						"schema": {
+							"type": "string",
+							"defaultValue": ""
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					},
+					"400": {
+						"description": "Business Exception",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/user/{id}": {
+			"delete": {
+				"tags": ["Users"],
+				"description": "Delete user",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"required": true,
+						"description": "User ID",
+						"example": 1,
+						"schema": {
+							"type": "integer",
+							"defaultValue": ""
+						}
+					}
+				],
+				"responses": {
+					"200": { "description": "Success" },
+					"400": { 
+						"description": "Business Exception",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+				}
+				}
+			}
+		}
+	}
+}

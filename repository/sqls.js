@@ -1,4 +1,20 @@
 const querys = {
+    user: {
+        insert: "INSERT INTO public.user VALUES (DEFAULT, $1, $2) RETURNING id",
+        update: "UPDATE public.user SET name = $1, email = $2 WHERE id = $3",
+        updatePatch: "UPDATE public.user SET {fields} WHERE id = ${id}",
+        select: "SELECT * FROM public.user",
+        selectByEmail: "SELECT * FROM public.user WHERE email = $1",
+        selectById: "SELECT * FROM public.user WHERE id = $1",
+        delete: "DELETE FROM public.user WHERE id = $1"
+        //é necessário expecificar public.user para o postgres diferenciar da tabela user do sistema interno dele
+    },
+    auth: {
+        insert: "INSERT INTO auth VALUES (DEFAULT, $1, $2)",
+        select: "SELECT * FROM auth",
+        selectByUserId: "SELECT * FROM auth a WHERE a.user = $1",
+        delete: "DELETE FROM auth WHERE auth.user = $1"
+    },
     sales: {
         insert: {
             name: "sales-insert",

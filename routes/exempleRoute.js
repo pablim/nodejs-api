@@ -1,113 +1,10 @@
-/**
- * @swagger
- * components:
- *   schemas:
- *     uploadFileRouter:
- *       type: file
- *       required:
- *         - file
- *       properties:
- *         file:
- *           type: file
- *           description: The sales file
- *       example:
- *         file: sales.txt
- * tags:
- *   name: Upload Sales File
- *   description: Handle the sales file
- * /api/upload-file:
- *   post:
- *     summary: Process a sales file
- *     tags: [Upload Sales File]
- *     requestBody:
- *       required: true
- *       content:
- *         application/octet-stream:
- *           schema:
- *             $ref: '#/components/schemas/uploadFileRouter'
- *     responses:
- *       200:
- *         description: Processed file.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msgs:
- *                   type: array
- *                   description: string msg array
- *                 status:
- *                   type: string
- *                   description: string msg
- *                 data:
- *                   type: array
- *                   description: result array
- *               example:
- *                 msgs: ["success", "files processed"]
- *                 status: 'ok'
- *                 data: []
- *       500:
- *         description: server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msgs:
- *                   type: array
- *                   description: string msg array
- *                 status:
- *                   type: string
- *                   description: string msg
- *               example:
- *                 msgs: ["error in file process"]
- *                 status: 'error'
- * /api/get-data:
- *   get:
- *     summary: Get consolidated data
- *     tags: [Upload Sales File]
- *     responses:
- *       200:
- *         description: Processed file.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msgs:
- *                   type: array
- *                   description: string msg array
- *                 status:
- *                   type: string
- *                   description: string msg
- *                 data:
- *                   type: array
- *                   description: result array
- *               example:
- *                 msgs: ["success"]
- *                 status: 'ok'
- *                 data: []
- *       500:
- *         description: server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msgs:
- *                   type: array
- *                   description: string msg array
- *                 status:
- *                   type: string
- *                   description: string msg
- *               example:
- *                 msgs: ["error in file process"]
- *                 status: 'error'
- */
 import express from 'express'
 import path from "path"
 import { withJWT } from '../utils/verifyJwt.js'
+import { verifyMidAirCollision, verifyUnchanged } from '../utils/verifyETag.js'
 import { GoogleLoyalty } from '../utils/GoogleLoyalty.js'
+import fs from 'fs'
+import readline from 'readline'
 
 import exemplePostgresRepository from '../repository/exemplePostgresRepository.js'
 
@@ -115,12 +12,6 @@ const issuerId = process.env.ISSUERID
 
 const exempleRoute = express.Router()
 
-/**
- * post request 
- * in post request the params are getting from body request
- * 
- * the query params can is utils too
- */
 exempleRoute.post('/loyalty/loyalty-create', withJWT, async (req, res) => {
 	const msgs = []
 
@@ -147,9 +38,108 @@ exempleRoute.post('/loyalty/loyalty-create', withJWT, async (req, res) => {
 	}
 })
 
-/**
- * get request
- */
+exempleRoute.post('/upload-file', async (req, res) => {
+	let sales;
+	let uploadPath;
+	let msgs = [];
+
+	if (!req.files || Object.keys(req.files).length === 0) {
+		return res.status(400).send('No files were uploaded.');
+	}
+
+	// The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+	sales = req.files.sales;
+	uploadPath = __dirname + '/../storage/' + sales.name;
+
+	try {
+		// Use the mv() method to place the file somewhere on your server
+		await sales.mv(uploadPath)
+
+		let totalized = {};
+		let insertValues = "";
+
+		const fileStream = fs.createReadStream(uploadPath);
+		const rl = readline.createInterface({
+			input: fileStream,
+			crlfDelay: Infinity
+		});
+
+		for await (const line of rl) {
+
+			if (line != "") {
+				const trasactionType = parseInt(line.slice(0,1))
+				const date = line.slice(1,26)
+				const product = line.slice(26,56).trim()
+				const value = parseInt(line.slice(56,66)) / 100
+				const seller = line.slice(66,86).trim()
+
+				insertValues += ("(" + [
+					trasactionType , 
+					"'" + date + "'",
+					"'" + product + "'",
+					value,
+					"'" + seller + "'"
+				].join(',') + "),")
+			}
+		}
+
+		rl.close()
+
+		await exemplePostgresRepository.insertMany(
+			insertValues.slice(0, insertValues.length-1)
+		).then(async () => {
+			totalized = await salesRepository.getValueByProdAndSeller()
+		})
+
+		msgs.push('File uploaded!')
+		res.status(200).json({msgs, status: "ok", data: totalized.rows});
+	} catch (e) {
+		if (e.constructor.name == "DatabaseError")
+			// When DatabaseError supress the details msg by security.
+			msgs.push(e.constructor.name + " - " + e.message)
+		else msgs.push(e.constructor.name + " - " + e.message)
+
+		res.status(500).json({msgs, status: "error"});
+	}
+
+	// https://javascript.plainenglish.io/how-to-process-a-10m-row-csv-in-node-js-without-crashing-memory-67db31ba5770
+})
+
+exempleRoute.put('/feriados/:codigoIBGE/:data', (req, res) => {
+    var codigoIBGE = req.params.codigoIBGE
+    
+    // Pode ser um nome ou data
+    var data = req.params.data 
+    
+    var name = req.body.name
+    
+    var ano = new Date().getFullYear() 
+    if (data in feriadosMoveis) {
+        name = feriadosMoveis[data].nome
+        var acrescimo = feriadosMoveis[data].acrescimo
+        var dataFeriadoStr = calculaDataPascoa(ano)
+        var dataFeriado = new Date(dataFeriadoStr+" 00:00:00")
+        dataFeriado.setDate(dataFeriado.getDate()+acrescimo)
+    
+        data = dataFeriado
+    } else {
+        data = ano + "-" + data
+    }
+    
+    
+    cidadeRepository.isCidade(codigoIBGE)
+        .then(rows => {
+            if (rows.length==1) {
+                return true
+            } else if (codigoIBGE in estados) {
+                return true
+            } else {
+                res.status(404).send("Não é uma cidade ou estado válido")
+            }
+        })
+        
+})
+
 exempleRoute.get('/loyalty/get-loyalty', withJWT, async (req, res) => {
 	const msgs = []
 
@@ -196,70 +186,6 @@ exempleRoute.get('/get-data', async (req, res) => {
 	}
 })
 
-exempleRoute.post('/upload-file', async (req, res) => {
-	let sales;
-	let uploadPath;
-	let msgs = [];
-
-	if (!req.files || Object.keys(req.files).length === 0) {
-		return res.status(400).send('No files were uploaded.');
-	}
-
-	// The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-	sales = req.files.sales;
-	uploadPath = __dirname + '/../storage/' + sales.name;
-
-	try {
-		// Use the mv() method to place the file somewhere on your server
-		await sales.mv(uploadPath)
-
-		let totalized = {};
-		let insertValues = "";
-
-		const fileStream = fs.createReadStream(uploadPath);
-		const rl = readline.createInterface({
-			input: fileStream,
-			crlfDelay: Infinity
-		});
-
-		for await (const line of rl) {
-			if (line != "") {
-				const trasactionType = parseInt(line.slice(0,1))
-				const date = line.slice(1,26)
-				const product = line.slice(26,56).trim()
-				const value = parseInt(line.slice(56,66)) / 100
-				const seller = line.slice(66,86).trim()
-
-				insertValues += ("(" + [
-					trasactionType , 
-					"'" + date + "'",
-					"'" + product + "'",
-					value,
-					"'" + seller + "'"
-				].join(',') + "),")
-			}
-		}
-
-		rl.close()
-
-		await salesRepository.insertMany(
-			insertValues.slice(0, insertValues.length-1)
-		).then(async () => {
-			totalized = await salesRepository.getValueByProdAndSeller()
-		})
-
-		msgs.push('File uploaded!')
-		res.status(200).json({msgs, status: "ok", data: totalized.rows});
-	} catch (e) {
-		if (e.constructor.name == "DatabaseError")
-			// When DatabaseError supress the details msg by security.
-			msgs.push(e.constructor.name + " - " + e.message)
-		else msgs.push(e.constructor.name + " - " + e.message)
-
-		res.status(500).json({msgs, status: "error"});
-	}
-})
-
 exempleRoute.get('/feriados/:codigoIBGE/:data', (req, res) => {
     var codigoIBGE = req.params.codigoIBGE
     var data = req.params.data 
@@ -277,41 +203,6 @@ exempleRoute.get('/feriados/:codigoIBGE/:data', (req, res) => {
         
 })
 
-exempleRoute.put('/feriados/:codigoIBGE/:data', (req, res) => {
-    var codigoIBGE = req.params.codigoIBGE
-    
-    // Pode ser um nome ou data
-    var data = req.params.data 
-    
-    var name = req.body.name
-    
-    var ano = new Date().getFullYear() 
-    if (data in feriadosMoveis) {
-        name = feriadosMoveis[data].nome
-        var acrescimo = feriadosMoveis[data].acrescimo
-        var dataFeriadoStr = calculaDataPascoa(ano)
-        var dataFeriado = new Date(dataFeriadoStr+" 00:00:00")
-        dataFeriado.setDate(dataFeriado.getDate()+acrescimo)
-    
-        data = dataFeriado
-    } else {
-        data = ano + "-" + data
-    }
-    
-    
-    cidadeRepository.isCidade(codigoIBGE)
-        .then(rows => {
-            if (rows.length==1) {
-                return true
-            } else if (codigoIBGE in estados) {
-                return true
-            } else {
-                res.status(404).send("Não é uma cidade ou estado válido")
-            }
-        })
-        
-})
-      
 exempleRoute.delete('/feriados/:codigoIBGE/:data', (req, res) => {
     var codigoIBGE = req.params.codigoIBGE
     var data = req.params.data 
@@ -341,6 +232,21 @@ exempleRoute.delete('/feriados/:codigoIBGE/:data', (req, res) => {
             }
         })
         
+})
+
+exempleRoute.get('/hugecsv', (req, res) => {
+    console.log('hugecsv');
+	
+	const stream = fs.createReadStream("data.csv");
+
+	const rl = readline.createInterface({
+	input: stream,
+	crlfDelay: Infinity
+	});
+
+	// for await (const line of rl) {
+	// // process one row at a time
+	// }
 })
 
 export default exempleRoute

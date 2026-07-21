@@ -1,0 +1,22 @@
+scalar Upload
+
+type User {
+    name: String!
+    email: String
+    file: Upload!
+}
+
+type Query {
+    users: [User!]!
+}
+
+type Mutation {
+    mut: String!
+    createUser(name: String!, email: String!, file: [Upload]): User!
+    createFakeUsers(qtde: Int! = 1): [User!]!
+}
+
+type Subscription {
+    userCreated: User!
+    usersCreated: [User!]!
+}

@@ -1,4 +1,6 @@
 import pg from 'pg'
+import 'dotenv/config'
+//https://github.com/motdotla/dotenv
 
 const { Pool } = pg
 

@@ -1,8 +1,8 @@
 import sqls from './sqls.js'
-import {postgresConnection as db} from '../db/index.js'
+import { postgresConnection as db } from '../db/index.js'
 
 const feriadoRepository = {
-    getFeriadoCidade: async (codigoIBGE, data) => {
+    get: async (codigoIBGE, data) => {
         try {
             const client = await db.getClient();
             const res = await client.query(sqls.feriado.selectFeriado, [codigoIBGE, data])
@@ -33,6 +33,17 @@ const feriadoRepository = {
             throw e
         }
     }, 
+    insertMany: async (value) => {
+		console.log('testing...', value);
+
+        try {
+            const client = await db.getClient();
+            await client.query(sqls.sales.insertMany.text + value)
+            client.release();
+        } catch (e) {
+            throw e
+        }
+    },
     delete: async (codigoIBGE, data) => {
         try {
             const client = await db.getClient();
