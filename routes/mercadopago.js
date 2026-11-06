@@ -25,7 +25,7 @@ mpRouter.get('/order', async (req, res) => {
         const result = await get(data)
         res.json({ data: result });  
     } catch (e) {
-        res.json({ error: 'API error' });  
+        res.json({ error: "API error", details: e.message, stack: e.stack });
     }
 })
 
@@ -60,7 +60,7 @@ mpRouter.post('/order', async (req, res) => {
     
         res.json({ data: orderResult[0] });  
     } catch (e) {
-        res.json({ error: 'API error' });  
+        res.json({ error: "API error", details: e.message, stack: e.stack });
     }
 })
 
@@ -182,13 +182,14 @@ mpRouter.post('/payment', async (req, res) => {
 
             res.json({ data: response });  
         })
-        .catch((error) => {
-            console.error("Erro ao processar o pagamento:", error);
-            res.json({ error: "API error", details: error });
+        .catch((e) => {
+            console.error("Erro ao processar o pagamento:", e);
+            res.json({ error: "API error", details: e.message, stack: e.stack });
         });
     } 
     catch (e) {
-        res.json({ error: "API error" });  
+        res.json({ error: "API error", details: e.message, stack: e.stack });
+
     }
 })
 
@@ -211,12 +212,12 @@ mpRouter.get('/payment', async (req, res) => {
             
             res.json({ data: response });  
         })
-        .catch((error) => {
-            console.error("Erro ao processar o pagamento:", error);
-            res.json({ error: "API error", details: error });
+        .catch((e) => {
+            console.error("Erro ao processar o pagamento:", e);
+            res.json({ error: "API error", details: e.message, stack: e.stack });
         });
     } catch (e) {
-        res.json({ error: "API error" });  
+        res.json({ error: "API error", details: e.message, stack: e.stack });
     }
 })
 
@@ -362,7 +363,7 @@ mpRouter.get('/catalog', async (req, res) => {
         
         res.json({ data: result });
     } catch (e) {
-        res.json({ error: "API error" });
+        res.json({ error: "API error", details: e.message, stack: e.stack });
     }
 })
 
